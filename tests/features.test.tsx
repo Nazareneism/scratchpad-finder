@@ -44,7 +44,7 @@ describe('/scratchpad', () => {
       await $.session.start(START)
       const { text } = await $.command.run(typed('open REPORT'))
 
-      expect(text).toBe('Opened report.md.')
+      expect(text).toBe('Opened report.md')
       expect(recorded.runs.at(-1)?.[0]).toBe(opener)
       expect(recorded.runs.at(-1)?.at(-1)).toMatch(/report\.md$/)
     })
@@ -75,7 +75,7 @@ describe('save notice', () => {
     await $.tool.call({ tool: 'Write', file_path: `${DIR}/report.md`, content: 'x' })
 
     expect(recorded.copies).toEqual([`${DIR}/report.md`])
-    expect(recorded.toasts.at(-1)).toMatch(/^Saved report\.md to the scratchpad \(path copied\)/)
+    expect(recorded.toasts.at(-1)).toBe('Saved report.md · path copied · /scratchpad to open')
   })
 
   test('copying can be turned off', { options: { autoCopy: false } }, async ($, on) => {
@@ -85,7 +85,7 @@ describe('save notice', () => {
     await $.tool.call({ tool: 'Write', file_path: `${DIR}/report.md`, content: 'x' })
 
     expect(recorded.copies).toEqual([])
-    expect(recorded.toasts.at(-1)).toMatch(/^Saved report\.md to the scratchpad\./)
+    expect(recorded.toasts.at(-1)).toBe('Saved report.md · /scratchpad to open')
   })
 
   test('a save elsewhere stays quiet', async ($, on) => {
@@ -105,9 +105,10 @@ describe('pane', () => {
       await $.session.start(START)
       const ui = await $.ui.mount({ ...PANE, surface })
 
-      expect((await ui.find({ type: 'Text', text: /report\.md/ }))?.text).toBe('report.md ')
-      expect((await ui.find({ type: 'Text', text: /^drafts\// }))?.text).toBe('drafts/ ')
+      expect((await ui.find({ type: 'Text', text: /report\.md/ }))?.text).toBe('report.md')
+      expect((await ui.find({ type: 'Text', text: /^drafts\// }))?.text).toBe('drafts/')
       expect((await ui.find({ type: 'Text', text: /^5m ago$/ }))?.text).toBe('5m ago')
+      expect((await ui.find({ type: 'Text', text: /^⎿$/ }))?.text).toBe('⎿')
       await ui.press({ key: 'copy:report.md' })
       expect(recorded.copies).toEqual([`${DIR}/report.md`])
       expect(recorded.toasts.at(-1)).toBe(`Copied ${DIR}/report.md`)

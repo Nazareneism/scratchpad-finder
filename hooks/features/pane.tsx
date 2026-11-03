@@ -14,14 +14,19 @@ import { readDir, readEntries } from '../services/state'
 const PANE = 'scratchpad-finder'
 const TITLE = 'Scratchpad'
 const ROWS_PER_ENTRY = 2
-const HEADER_ROWS = 4
+// The pane's frame, the path, the folder's actions and the gap before the list.
+const HEADER_ROWS = 5
+// Claude Code's own look: facts and actions joined by a middle dot, and a
+// row's actions on a dim ⎿ line beneath it, as a tool call's result is.
+const SEP = ' · '
+const BRANCH = '⎿'
 
 export async function openPane($: EngineInterface): Promise<void> {
   await refreshEntries($).catch(() => undefined)
   await $.ui.open({ id: PANE, title: TITLE })
 }
 
-const describe = (entry: ScratchEntry, now: number): string => entryDetails(entry, now).join(' · ')
+const describe = (entry: ScratchEntry, now: number): string => entryDetails(entry, now).join(SEP)
 
 const fitting = (entries: readonly ScratchEntry[], rows: number) => {
   const room = Math.max(1, Math.floor((rows - HEADER_ROWS) / ROWS_PER_ENTRY))
@@ -47,33 +52,49 @@ export async function renderPane(
   const now = await $.clock.now()
   const { shown, hidden } = fitting(entries, e.viewport?.rows ?? 24)
   const say = (work: () => Promise<string>) => async () => $.ui.toast(await work())
+  // Secondary controls: dim at rest, full strength under the focus or pointer.
+  const action = (key: string, label: string, work: () => Promise<string>) => (
+    <Button plain dimColor key={key} label={label} onPress={say(work)} />
+  )
   const actions = (key: string, path: string) => (
     <Box flexDirection="row">
-      <Button key={`open:${key}`} label="Open" onPress={say(() => openPath($, path))} />
-      <Button key={`reveal:${key}`} label="Show in folder" onPress={say(() => revealPath($, path))} />
-      <Button key={`copy:${key}`} label="Copy path" onPress={say(() => copyPath($, path, e.surface))} />
+      {action(`open:${key}`, 'Open', () => openPath($, path))}
+      <Text dimColor>{SEP}</Text>
+      {action(`reveal:${key}`, 'Show in folder', () => revealPath($, path))}
+      <Text dimColor>{SEP}</Text>
+      {action(`copy:${key}`, 'Copy path', () => copyPath($, path, e.surface))}
     </Box>
   )
-  const row = (entry: ScratchEntry) => (
-    <Box flexDirection="column">
-      <Box flexDirection="row">
-        <Text bold>{entry.isDir ? `${entry.name}/` : entry.name} </Text>
-        <Text dimColor>{describe(entry, now)}</Text>
+  const row = (entry: ScratchEntry) => {
+    const details = describe(entry, now)
+
+    return (
+      <Box flexDirection="column">
+        <Box flexDirection="row" columnGap="md">
+          <Text weight="semibold">{entry.isDir ? `${entry.name}/` : entry.name}</Text>
+          {details !== '' && <Text dimColor>{details}</Text>}
+        </Box>
+        <Box flexDirection="row" paddingLeft="md" columnGap="md">
+          <Text dimColor>{BRANCH}</Text>
+          {actions(entry.name, joinPath(dir, entry.name))}
+        </Box>
       </Box>
-      {actions(entry.name, joinPath(dir, entry.name))}
-    </Box>
-  )
+    )
+  }
 
   return (
     <Box flexDirection="column">
       <Text dimColor>{shortenStart(dir, columns)}</Text>
       <Box flexDirection="row">
         {actions('/', dir)}
-        <Button key="refresh" label="Refresh" onPress={() => refreshEntries($)} />
+        <Text dimColor>{SEP}</Text>
+        <Button plain dimColor key="refresh" label="Refresh" onPress={() => refreshEntries($)} />
       </Box>
-      {entries.length === 0 && <Text dimColor>Empty so far.</Text>}
-      {shown.map(row)}
-      {hidden > 0 && <Text dimColor>+{hidden} more: /scratchpad list</Text>}
+      <Box flexDirection="column" marginTop="md">
+        {entries.length === 0 && <Text dimColor>No files yet</Text>}
+        {shown.map(row)}
+        {hidden > 0 && <Text dimColor>… +{hidden} more (/scratchpad list)</Text>}
+      </Box>
     </Box>
   )
 }

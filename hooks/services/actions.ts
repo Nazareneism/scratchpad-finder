@@ -32,7 +32,7 @@ async function launch($: EngineInterface, kind: OpenKind, path: string): Promise
   const ran = await $.process.run(opener.argv(path), { timeoutMs: TIMEOUT_MS }).catch(() => undefined)
   const isOk = ran !== undefined && opener.isOk(ran.exitCode)
 
-  return isOk ? `${DONE[kind]} ${baseName(path)}.` : `Couldn't ${kind} it on this machine. Path: ${path}`
+  return isOk ? `${DONE[kind]} ${baseName(path)}` : `Couldn't ${kind} it on this machine. Path: ${path}`
 }
 
 export function openPath($: EngineInterface, path: string): Promise<string> {

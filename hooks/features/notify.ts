@@ -34,8 +34,10 @@ async function announce($: EngineInterface, path: string, options: NotifyOptions
   if ((await scratchDirOf($, path)) === undefined) return
 
   const copied = options.isCopyingOnSave && (await $.ui.copy({ text: path })).isCopied
-  const note = copied ? ' (path copied)' : ''
-  $.ui.toast(`Saved ${baseName(path)} to the scratchpad${note}. /scratchpad opens it.`)
+  // Terse and dot-joined, as Claude Code's own notices read; the toast's
+  // header already names the plugin, so "scratchpad" goes unsaid.
+  const parts = [`Saved ${baseName(path)}`, ...(copied ? ['path copied'] : []), '/scratchpad to open']
+  $.ui.toast(parts.join(' · '))
 }
 
 type ToolCallHook = Hook<'tool.call'>
