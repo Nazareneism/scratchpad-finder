@@ -115,4 +115,17 @@ describe('pane', () => {
       await ui.unmount()
     })
   }
+
+  test('fits its own body, not the whole surface', async ($, on) => {
+    standIns(on)
+    await $.session.start(START)
+    // 30 cells across (sizing by the surface gave 40 here); 7 rows hold the
+    // 3 header rows and 2 two-row entries.
+    const props = { ...PANE.props, bodyColumns: 30, scroll: { offset: 0, bodyRows: 7 } }
+    const ui = await $.ui.mount({ ...PANE, props, surface: 'terminal' })
+
+    expect((await ui.find({ type: 'Text', text: /scratchpad$/ }))?.text).toBe(`…${DIR.slice(-29)}`)
+    expect((await ui.find({ type: 'Text', text: /more/ }))?.text).toBe('… +2 more (/scratchpad list)')
+    await ui.unmount()
+  })
 })

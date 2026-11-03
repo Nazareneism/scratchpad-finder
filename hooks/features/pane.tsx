@@ -2,7 +2,7 @@
 // with Open, Show in folder and Copy path. Every button reports what it did
 // as a toast.
 
-import type { EngineInterface, Hook, RenderElement } from 'claude-code'
+import type { EngineInterface, Hook, RenderElement, RenderInput } from 'claude-code'
 
 import type { ScratchEntry } from '../../types'
 import { entryDetails, shortenStart } from '../core/format'
@@ -14,8 +14,9 @@ import { readDir, readEntries } from '../services/state'
 const PANE = 'scratchpad-finder'
 const TITLE = 'Scratchpad'
 const ROWS_PER_ENTRY = 2
-// The pane's frame, the path, the folder's actions and the gap before the list.
-const HEADER_ROWS = 5
+// The path, the folder's actions and the gap before the list (the pane's
+// bodyRows already leaves out the engine's frame).
+const HEADER_ROWS = 3
 // Claude Code's own look: facts and actions joined by a middle dot, and a
 // row's actions on a dim ⎿ line beneath it, as a tool call's result is.
 const SEP = ' · '
@@ -36,13 +37,12 @@ const fitting = (entries: readonly ScratchEntry[], rows: number) => {
 
 type RenderHook = Hook<'ui.render'>
 
-export async function renderPane(
-  $: Parameters<RenderHook>[0],
-  e: Parameters<RenderHook>[1],
-): Promise<RenderElement> {
+// Sized by the pane's own body, not e.viewport: that is the whole surface,
+// so a path cut to its width still wrapped inside the narrower pane.
+export async function renderPane($: Parameters<RenderHook>[0], e: RenderInput<'Pane'>): Promise<RenderElement> {
   const { Box, Button, Text } = $.ui.resolve(e)
   const dir = await readDir($)
-  const columns = Math.max(20, e.viewport?.columns ?? 40)
+  const columns = Math.max(2, e.props.bodyColumns)
 
   if (dir === null) {
     return <Text dimColor>No scratchpad yet. It appears once Claude saves a file there.</Text>
@@ -50,7 +50,7 @@ export async function renderPane(
 
   const entries = await readEntries($)
   const now = await $.clock.now()
-  const { shown, hidden } = fitting(entries, e.viewport?.rows ?? 24)
+  const { shown, hidden } = fitting(entries, e.props.scroll.bodyRows)
   const say = (work: () => Promise<string>) => async () => $.ui.toast(await work())
   // Secondary controls: dim at rest, full strength under the focus or pointer.
   const action = (key: string, label: string, work: () => Promise<string>) => (
