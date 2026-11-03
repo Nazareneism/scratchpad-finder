@@ -1,0 +1,13 @@
+{
+  "name": "scratchpad-finder",
+  "description": "Find, open and copy the files Claude saves to its scratchpad.",
+  "owner": {
+    "name": "nazareneism"
+  },
+  "plugins": [
+    {
+      "name": "scratchpad-finder",
+      "source": "./"
+    }
+  ]
+}

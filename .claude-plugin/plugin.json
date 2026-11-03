@@ -1,0 +1,15 @@
+{
+  "name": "scratchpad-finder",
+  "version": "0.1.0",
+  "description": "Find, open and copy the files Claude saves to its scratchpad: a toast on save, a /scratchpad command and a side pane.",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "autoCopy": {
+      "type": "boolean",
+      "title": "Copy path on save",
+      "description": "Copy a file's full path to the clipboard when Claude saves it to the scratchpad.",
+      "default": true
+    }
+  },
+  "license": "MIT"
+}

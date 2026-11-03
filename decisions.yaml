@@ -1,0 +1,108 @@
+# Project decision log. Newest last. Each entry: what was decided, why,
+# and what else was considered.
+
+project: scratchpad-finder
+decisions:
+  - id: D-001
+    date: 2026-11-03
+    title: Build it as a Claude Code mod (function hooks)
+    decision: >
+      A plugin with a TypeScript hooks module, not settings-file shell hooks
+      or a CLAUDE.md instruction.
+    reason: >
+      Only function hooks can show toasts, register a slash command, draw a
+      side pane and reach the clipboard from one codebase.
+    alternatives:
+      - CLAUDE.md line asking Claude to save into ./out/ (relies on the model)
+      - Shell PostToolUse hook (no pane, no toast)
+
+  - id: D-002
+    date: 2026-11-03
+    title: Features in scope
+    decision: Save notice with path copy, /scratchpad command, open/reveal on the OS, side pane.
+    reason: Covers the moment of "where did it go?" and later browsing.
+    alternatives:
+      - Mirroring files to a fixed folder (left out for now)
+
+  - id: D-003
+    date: 2026-11-03
+    title: Never change where Claude saves
+    decision: The mod only observes writes; it does not rewrite file paths.
+    reason: >
+      Redirecting a write would leave Claude believing the file is in the
+      scratchpad, so its later reads and edits would fail.
+
+  - id: D-004
+    date: 2026-11-03
+    title: Locate the scratchpad from the system prompt, then from written paths
+    decision: >
+      Read the "Scratchpad directory:" line via $.prompt.compose once per
+      load; fall back to the folder of a written path that contains a
+      claude*/.../scratchpad segment.
+    reason: >
+      The temp-folder layout differs per OS and may change between releases;
+      the prompt states the real path, and the fallback covers prompts that
+      do not.
+    alternatives:
+      - Rebuilding the path from tmpdir, uid, project and session id (fragile)
+
+  - id: D-005
+    date: 2026-11-03
+    title: Cross-platform openers as a table
+    decision: >
+      OPENERS maps platform x {open, reveal} to an argv builder and an
+      exit-code check. Platform comes from OS=Windows_NT, else uname -s.
+    reason: >
+      Adding a platform is adding a row, with no new branches. explorer.exe
+      exits 1 even on success, so Windows ignores the code. xdg-open runs
+      detached through sh so a launched app can't hold the call open.
+    alternatives:
+      - switch statements per action (higher complexity, duplicated)
+
+  - id: D-006
+    date: 2026-11-03
+    title: All $.state access lives in services/state.ts
+    decision: Atoms are private to state.ts; other files call readDir/readEntries/writeDir/writeEntries.
+    reason: >
+      The engine's scanner requires state reads to name an atom defined in
+      the same file; one owner also keeps the contract in one place.
+
+  - id: D-007
+    date: 2026-11-03
+    title: Literal command name and pane id in register.ts
+    decision: >
+      register.ts spells 'scratchpad' and 'scratchpad-finder' as literals in
+      its matchers, while command.ts and pane.tsx keep their own constants.
+    reason: >
+      The validator reads matchers from source and only accepts literals
+      there. The repetition is limited to these two strings, and the engine
+      tests fail if they drift apart.
+
+  - id: D-008
+    date: 2026-11-03
+    title: Helpers that take $ are function declarations; $ never goes in an object
+    decision: >
+      Shared $-using helpers are `function` declarations, and command
+      dispatch uses a small switch instead of a table of closures.
+    reason: The engine follows $ across imports only into function declarations.
+
+  - id: D-009
+    date: 2026-11-03
+    title: Refresh the file list after every tool call
+    decision: Re-list the folder after each tool call and write state only when it changed.
+    reason: Bash commands can write to the scratchpad too; unchanged lists cause no redraw.
+
+  - id: D-010
+    date: 2026-11-03
+    title: Copy-on-save is on by default, with an option to turn it off
+    decision: userConfig option autoCopy (boolean, default true).
+    reason: Copying is the quickest path to the file; some people won't want their clipboard replaced.
+
+  - id: D-011
+    date: 2026-11-03
+    title: Code rules
+    decision: >
+      Cyclomatic complexity at most 10 per function (currently at most 6),
+      every file under 1000 lines, shared helpers instead of copies, and a
+      layered layout (core -> services -> features -> register).
+    reason: Project standards.
