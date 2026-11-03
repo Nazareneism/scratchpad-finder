@@ -121,3 +121,16 @@ decisions:
     alternatives:
       - Cream rounded tile (risks a double frame inside a listing's own tile)
       - Dark rounded tile (the page outline disappears into it)
+
+  - id: D-013
+    date: 2026-11-03
+    title: Make the repository public after a live test
+    decision: >
+      Nazareneism/scratchpad-finder is public on GitHub. A live test passed
+      first: /scratchpad found the session's scratchpad and listed its
+      files newest first.
+    reason: >
+      The mod works, and a public repo lets anyone install it without GitHub
+      read access or a git credential.
+    alternatives:
+      - Keep it private (installs need read access and a git credential)
