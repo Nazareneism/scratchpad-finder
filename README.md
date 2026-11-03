@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".claude-plugin/icon.png" alt="Pixel-art Clawd holding up a page" width="160">
+</p>
+
 # scratchpad-finder
 
 A Claude Code mod that makes the scratchpad easy to find. Claude often saves
@@ -77,6 +81,7 @@ and Show in folder can't reach your computer. Copy path and the list still work.
 ```
 .claude-plugin/plugin.json   manifest and the autoCopy option
 .claude-plugin/marketplace.json  lets the repo be installed from directly
+.claude-plugin/icon.png      plugin icon, drawn by assets/make_logo.py
 hooks/hooks.json             names the hooks module
 hooks/register.ts            wires features to events, nothing else
 hooks/core/                  pure helpers: paths, formatting, platform table
@@ -84,6 +89,7 @@ hooks/services/              shared $-using code: state, locating, listing, acti
 hooks/features/              notify (save toast), command, pane
 types/index.d.ts             the $.state contract
 tests/                       unit tests (core) and engine tests (features)
+assets/make_logo.py          redraws the icon (usage in its docstring)
 decisions.yaml               project decision log
 ```
 

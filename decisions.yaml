@@ -106,3 +106,18 @@ decisions:
       every file under 1000 lines, shared helpers instead of copies, and a
       layered layout (core -> services -> features -> register).
     reason: Project standards.
+
+  - id: D-012
+    date: 2026-11-03
+    title: Pixel-art Clawd icon on a transparent background
+    decision: >
+      A 32x32 pixel-art Clawd holding up a page, scaled 32x with no smoothing
+      to a 1024 px PNG at .claude-plugin/icon.png. assets/make_logo.py draws
+      it from text grids.
+    reason: >
+      Clawd's sprite comes straight from the Claude Code banner, and the page
+      says "files". Transparent lets the place showing it supply its own tile.
+      A script keeps the art editable instead of a one-off image.
+    alternatives:
+      - Cream rounded tile (risks a double frame inside a listing's own tile)
+      - Dark rounded tile (the page outline disappears into it)

@@ -2,6 +2,9 @@
   "name": "scratchpad-finder",
   "version": "0.1.0",
   "description": "Find, open and copy the files Claude saves to its scratchpad: a toast on save, a /scratchpad command and a side pane.",
+  "author": {
+    "name": "Naz"
+  },
   "types": "./types/index.d.ts",
   "userConfig": {
     "autoCopy": {
