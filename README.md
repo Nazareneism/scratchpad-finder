@@ -9,6 +9,8 @@ files to a per-session scratchpad folder buried deep in your temp directory.
 This mod tells you when that happens and gives you one-step ways to open,
 show or copy those files on macOS, Windows and Linux.
 
+![Claude Code with the save toast in the conversation and the Scratchpad pane on the right](assets/ui-mockup.jpg)
+
 ## What it does
 
 - **Save notice.** When Claude writes or edits a file in the scratchpad, a
@@ -86,6 +88,7 @@ hooks/features/              notify (save toast), command, pane
 types/index.d.ts             the $.state contract
 tests/                       unit tests (core) and engine tests (features)
 assets/make_logo.py          redraws the icon (usage in its docstring)
+assets/make_ui_mockup.py     redraws assets/ui-mockup.jpg, the README mockup
 decisions.yaml               project decision log
 ```
 
