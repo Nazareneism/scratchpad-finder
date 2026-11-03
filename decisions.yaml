@@ -134,3 +134,21 @@ decisions:
       read access or a git credential.
     alternatives:
       - Keep it private (installs need read access and a git credential)
+
+  - id: D-014
+    date: 2026-11-03
+    title: Stat folders and links; unknown size or time is null, never 0
+    decision: >
+      $.fs.list gives size and time 0 for anything but a regular file, so
+      listEntries stats folders and links (links followed). ScratchEntry's
+      size and mtimeMs are number | null: a folder's size is null, and an
+      entry whose stat fails keeps null for both. The listing leaves out
+      what is null, and unknown times sort last. State shape is entries-2.
+    reason: >
+      A live test showed "samples/  0 B  20760d ago": the listing's 0 read as
+      January 1970. A 0 standing for "unknown" looks like a real value; null
+      can't be mistaken for one. A folder's own stat size is not its
+      contents' size, so showing it would mislead too.
+    alternatives:
+      - Hide size and age for folders (no stat, but folders sort last whatever their time)
+      - Drop an entry whose stat fails (hides something that is there)

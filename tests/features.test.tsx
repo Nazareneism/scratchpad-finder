@@ -22,12 +22,20 @@ const PANE = {
 } as const
 
 describe('/scratchpad', () => {
-  test('lists the files newest first', async ($, on) => {
+  test('lists newest first, a folder by its own time and with no size', async ($, on) => {
     standIns(on)
     await $.session.start(START)
     const { text } = await $.command.run(typed('list'))
 
-    expect(text).toMatch(new RegExp(`^Scratchpad: ${DIR}\\n  report\\.md .*\\n  old\\.txt`))
+    expect(text).toBe(
+      [
+        `Scratchpad: ${DIR}`,
+        '  report.md  2.0 KB  1m ago',
+        '  drafts/  5m ago',
+        '  old.txt  10 B  1h ago',
+        '  gone/',
+      ].join('\n'),
+    )
   })
 
   for (const [machine, opener] of [['mac', 'open'], ['windows', 'explorer.exe'], ['linux', 'sh']] as const) {
@@ -98,6 +106,8 @@ describe('pane', () => {
       const ui = await $.ui.mount({ ...PANE, surface })
 
       expect((await ui.find({ type: 'Text', text: /report\.md/ }))?.text).toBe('report.md ')
+      expect((await ui.find({ type: 'Text', text: /^drafts\// }))?.text).toBe('drafts/ ')
+      expect((await ui.find({ type: 'Text', text: /^5m ago$/ }))?.text).toBe('5m ago')
       await ui.press({ key: 'copy:report.md' })
       expect(recorded.copies).toEqual([`${DIR}/report.md`])
       expect(recorded.toasts.at(-1)).toBe(`Copied ${DIR}/report.md`)

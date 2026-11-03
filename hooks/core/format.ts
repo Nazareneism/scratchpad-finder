@@ -1,5 +1,7 @@
 // Pure text formatting shared by the command's output and the pane.
 
+import type { ScratchEntry } from '../../types'
+
 const SIZE_UNITS = ['B', 'KB', 'MB', 'GB'] as const
 const AGE_STEPS = [
   [86_400_000, 'd'],
@@ -22,6 +24,12 @@ export const formatAge = (ageMs: number): string => {
 
   return step ? `${Math.floor(ageMs / step[0])}${step[1]} ago` : 'just now'
 }
+
+/** What a listing says after an entry's name: its size and age, each only when known. */
+export const entryDetails = (entry: ScratchEntry, now: number): string[] => [
+  ...(entry.size === null ? [] : [formatSize(entry.size)]),
+  ...(entry.mtimeMs === null ? [] : [formatAge(now - entry.mtimeMs)]),
+]
 
 /** Keeps the end of a long text (a path's most telling part). */
 export const shortenStart = (text: string, max: number): string =>

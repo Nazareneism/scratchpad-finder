@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from 'claude-code/testing'
 
-import { formatAge, formatSize, shortenStart } from '../hooks/core/format'
+import { entryDetails, formatAge, formatSize, shortenStart } from '../hooks/core/format'
 import { baseName, dirName, findInPath, findInText, isInside, joinPath } from '../hooks/core/paths'
 import { OPENERS, platformFromUname } from '../hooks/core/platform'
 
@@ -58,5 +58,16 @@ describe('format', () => {
     expect(formatAge(3 * 60_000)).toBe('3m ago')
     expect(formatAge(2 * 3_600_000)).toBe('2h ago')
     expect(shortenStart('abcdefghij', 5)).toBe('…ghij')
+  })
+
+  test('entry details leave out what is not known', () => {
+    const now = 10 * 60_000
+
+    expect(entryDetails({ name: 'a.md', isDir: false, size: 2048, mtimeMs: now - 60_000 }, now)).toEqual([
+      '2.0 KB',
+      '1m ago',
+    ])
+    expect(entryDetails({ name: 'd', isDir: true, size: null, mtimeMs: now - 5 * 60_000 }, now)).toEqual(['5m ago'])
+    expect(entryDetails({ name: 'x', isDir: true, size: null, mtimeMs: null }, now)).toEqual([])
   })
 })

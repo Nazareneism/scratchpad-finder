@@ -29,10 +29,6 @@ show or copy those files on macOS, Windows and Linux.
 
 ## Install
 
-The repository is private: you need read access to it on GitHub, and a git
-credential for github.com on your machine (an SSH key, or `gh auth login`
-then `gh auth setup-git`).
-
 At the prompt of a Claude Code terminal session:
 
 ```

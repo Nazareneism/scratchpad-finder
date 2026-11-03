@@ -7,7 +7,7 @@
 
 import type { CommandRunResult, EngineInterface } from 'claude-code'
 
-import { formatAge, formatSize } from '../core/format'
+import { entryDetails } from '../core/format'
 import { joinPath } from '../core/paths'
 import { copyPath, openPath, revealPath } from '../services/actions'
 import { findEntry, refreshEntries } from '../services/entries'
@@ -32,8 +32,8 @@ const parseArgs = (args: string): { verb: string; name: string } => {
 async function listText($: EngineInterface, dir: string): Promise<string> {
   const entries = await refreshEntries($)
   const now = await $.clock.now()
-  const lines = entries.map(
-    entry => `  ${entry.name}${entry.isDir ? '/' : ''}  ${formatSize(entry.size)}  ${formatAge(now - entry.mtimeMs)}`,
+  const lines = entries.map(entry =>
+    [`  ${entry.name}${entry.isDir ? '/' : ''}`, ...entryDetails(entry, now)].join('  '),
   )
 
   return [`Scratchpad: ${dir}`, ...(lines.length > 0 ? lines : ['  (empty)'])].join('\n')

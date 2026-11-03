@@ -14,7 +14,7 @@ const scratchDir = atom({ plugin: 'scratchpad-finder', key: 'dir' } as const, nu
 const scratchEntries = atom(
   { plugin: 'scratchpad-finder', key: 'entries' } as const,
   [],
-  { shape: 'entries-1' },
+  { shape: 'entries-2' },
 )
 
 const isSameList = (a: readonly ScratchEntry[], b: readonly ScratchEntry[]): boolean =>

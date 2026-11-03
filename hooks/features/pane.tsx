@@ -5,7 +5,7 @@
 import type { EngineInterface, Hook, RenderElement } from 'claude-code'
 
 import type { ScratchEntry } from '../../types'
-import { formatAge, formatSize, shortenStart } from '../core/format'
+import { entryDetails, shortenStart } from '../core/format'
 import { joinPath } from '../core/paths'
 import { copyPath, openPath, revealPath } from '../services/actions'
 import { refreshEntries } from '../services/entries'
@@ -21,8 +21,7 @@ export async function openPane($: EngineInterface): Promise<void> {
   await $.ui.open({ id: PANE, title: TITLE })
 }
 
-const describe = (entry: ScratchEntry, now: number): string =>
-  `${formatSize(entry.size)} · ${formatAge(now - entry.mtimeMs)}`
+const describe = (entry: ScratchEntry, now: number): string => entryDetails(entry, now).join(' · ')
 
 const fitting = (entries: readonly ScratchEntry[], rows: number) => {
   const room = Math.max(1, Math.floor((rows - HEADER_ROWS) / ROWS_PER_ENTRY))
